@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <!-- Pantalla principal -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.cityreport.HomeFragment"
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/toNuevaIncidencia"
+            app:destination="@id/nuevaIncidenciaFragment" />
+    </fragment>
+
+    <!-- Pantalla de captura -->
+    <fragment
+        android:id="@+id/nuevaIncidenciaFragment"
+        android:name="com.example.cityreport.NuevaIncidenciaFragment"
+        tools:layout="@layout/fragment_nueva_incidencia" />
+
+    <!-- Pantalla de detalles (la dejamos lista para después) -->
+    <fragment
+        android:id="@+id/detalleFragment" />
+
+</navigation>
