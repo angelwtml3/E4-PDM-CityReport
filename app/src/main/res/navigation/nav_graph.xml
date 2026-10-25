@@ -3,27 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/welcomeFragment">
 
-    <!-- Pantalla principal -->
+    <fragment
+        android:id="@+id/welcomeFragment"
+        android:name="com.example.cityreport.WelcomeFragment"
+        android:label="Bienvenida"
+        tools:layout="@layout/fragment_welcome">
+        <action
+            android:id="@+id/action_welcomeFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/welcomeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.cityreport.HomeFragment"
+        android:label="City Report"
         tools:layout="@layout/fragment_home">
-
         <action
             android:id="@+id/toNuevaIncidencia"
             app:destination="@id/nuevaIncidenciaFragment" />
+        <action
+            android:id="@+id/toDetalleIncidencia"
+            app:destination="@id/detalleFragment" />
     </fragment>
 
-    <!-- Pantalla de captura -->
     <fragment
         android:id="@+id/nuevaIncidenciaFragment"
         android:name="com.example.cityreport.NuevaIncidenciaFragment"
+        android:label="Nueva Incidencia"
         tools:layout="@layout/fragment_nueva_incidencia" />
 
-    <!-- Pantalla de detalles (la dejamos lista para después) -->
     <fragment
-        android:id="@+id/detalleFragment" />
+        android:id="@+id/detalleFragment"
+        android:name="com.example.cityreport.DetalleIncidenciaFragment"
+        android:label="Detalle"
+        tools:layout="@layout/fragment_detalle_incidencia" />
 
 </navigation>

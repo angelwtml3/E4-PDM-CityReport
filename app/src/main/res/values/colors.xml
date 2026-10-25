@@ -2,4 +2,22 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Material 3 Color Palette (Basics) -->
+    <color name="primary">#006495</color>
+    <color name="onPrimary">#FFFFFF</color>
+    <color name="primaryContainer">#CCE5FF</color>
+    <color name="onPrimaryContainer">#001E31</color>
+
+    <color name="secondary">#51606F</color>
+    <color name="onSecondary">#FFFFFF</color>
+
+    <!-- Status Colors -->
+    <color name="status_resolved">#2E7D32</color> <!-- Green -->
+    <color name="status_pending">#F9A825</color>  <!-- Yellow/Amber -->
+    <color name="status_critical">#C62828</color> <!-- Red -->
+
+    <color name="status_resolved_container">#C8E6C9</color>
+    <color name="status_pending_container">#FFF9C4</color>
+    <color name="status_critical_container">#FFCDD2</color>
 </resources>
