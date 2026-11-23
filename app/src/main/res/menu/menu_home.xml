@@ -7,4 +7,10 @@
         android:title="Buscar"
         app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="Ajustes"
+        app:showAsAction="ifRoom" />
 </menu>

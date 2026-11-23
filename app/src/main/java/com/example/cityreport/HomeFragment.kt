@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cityreport.databinding.FragmentHomeBinding
@@ -14,6 +16,10 @@ import com.example.cityreport.model.Incidencia
 import com.example.cityreport.model.IncidenciaRepositoryImpl
 import com.example.cityreport.presenter.HomePresenter
 import com.example.cityreport.view.contracts.HomeContract
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.materialswitch.MaterialSwitch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment(), HomeContract.View {
 
@@ -38,6 +44,10 @@ class HomeFragment : Fragment(), HomeContract.View {
         presenter.attachView(this)
 
         setupUI()
+    }
+
+    override fun onResume() {
+        super.onResume()
         presenter.cargarIncidencias()
     }
 
@@ -55,6 +65,17 @@ class HomeFragment : Fragment(), HomeContract.View {
             presenter.onNuevaIncidenciaClick()
         }
 
+        binding.toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_search -> true
+                R.id.action_settings -> {
+                    mostrarDialogoAjustes()
+                    true
+                }
+                else -> false
+            }
+        }
+
         val searchItem = binding.toolbar.menu.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as? SearchView
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -68,6 +89,41 @@ class HomeFragment : Fragment(), HomeContract.View {
                 return true
             }
         })
+    }
+
+    private fun mostrarDialogoAjustes() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_ajustes, null)
+        val switchTemaOscuro = dialogView.findViewById<MaterialSwitch>(R.id.switchTemaOscuro)
+        val switchNotificaciones = dialogView.findViewById<MaterialSwitch>(R.id.switchNotificaciones)
+
+        val prefRepo = CityReportApp.instance.preferencesRepository
+
+        lifecycleScope.launch {
+            switchTemaOscuro.isChecked = prefRepo.isDarkThemeFlow.first()
+            switchNotificaciones.isChecked = prefRepo.isNotificationsEnabledFlow.first()
+        }
+
+        switchTemaOscuro.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                prefRepo.setDarkTheme(isChecked)
+                if (isChecked) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                }
+            }
+        }
+
+        switchNotificaciones.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                prefRepo.setNotificationsEnabled(isChecked)
+            }
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .setPositiveButton("Cerrar") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     override fun mostrarIncidencias(lista: List<Incidencia>) {

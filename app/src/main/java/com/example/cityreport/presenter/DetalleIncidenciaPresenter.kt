@@ -30,4 +30,9 @@ class DetalleIncidenciaPresenter(
         repository.actualizarEstado(id, resuelta)
         view?.notificarEstadoActualizado(resuelta)
     }
+
+    override fun eliminarIncidencia(id: Int) {
+        repository.eliminar(id)
+        view?.cerrarPantalla()
+    }
 }

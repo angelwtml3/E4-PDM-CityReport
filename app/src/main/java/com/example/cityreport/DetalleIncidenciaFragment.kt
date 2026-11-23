@@ -19,6 +19,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.Locale
 
 class DetalleIncidenciaFragment : Fragment(), DetalleIncidenciaContract.View, OnMapReadyCallback {
@@ -59,6 +60,16 @@ class DetalleIncidenciaFragment : Fragment(), DetalleIncidenciaContract.View, On
             findNavController().popBackStack()
         }
 
+        binding.toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_delete -> {
+                    confirmarEliminacion()
+                    true
+                }
+                else -> false
+            }
+        }
+
         binding.btnVolver.setOnClickListener {
             findNavController().popBackStack()
         }
@@ -67,6 +78,18 @@ class DetalleIncidenciaFragment : Fragment(), DetalleIncidenciaContract.View, On
             val resuelta = incidenciaActual?.resuelta == true
             presenter.cambiarEstadoResuelta(idIncidencia, !resuelta)
         }
+    }
+
+    private fun confirmarEliminacion() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Eliminar Incidencia")
+            .setMessage("¿Estás seguro de que deseas eliminar este reporte de la base de datos local (Room)?")
+            .setPositiveButton("Eliminar") { _, _ ->
+                presenter.eliminarIncidencia(idIncidencia)
+                Toast.makeText(requireContext(), "Incidencia eliminada", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     override fun mostrarDetalle(incidencia: Incidencia) {
