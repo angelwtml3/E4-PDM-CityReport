@@ -147,7 +147,7 @@
                 </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Botones de Acción de Cámara -->
+            <!-- Botones de Acción de Cámara y Galería -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -159,15 +159,27 @@
                     style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
+                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:text="Abrir Cámara" />
+                    android:text="Cámara"
+                    app:icon="@android:drawable/ic_menu_camera" />
+
+                <Button
+                    android:id="@+id/btnGaleria"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:text="Galería"
+                    app:icon="@android:drawable/ic_menu_gallery" />
 
                 <Button
                     android:id="@+id/btnTomarFoto"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
+                    android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     android:text="Capturar"
                     android:visibility="gone" />
@@ -177,7 +189,7 @@
                     style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
+                    android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     android:text="Repetir"
                     android:visibility="gone" />

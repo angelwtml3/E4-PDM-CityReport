@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -19,9 +20,12 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.cityreport.data.repository.SyncRepository
 import com.example.cityreport.databinding.FragmentNuevaIncidenciaBinding
 import com.example.cityreport.model.Categoria
+import com.example.cityreport.model.Incidencia
 import com.example.cityreport.model.IncidenciaRepositoryImpl
 import com.example.cityreport.presenter.NuevaIncidenciaPresenter
 import com.example.cityreport.util.NotificationHelper
@@ -34,8 +38,10 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -72,6 +78,15 @@ class NuevaIncidenciaFragment : Fragment(), NuevaIncidenciaContract.View, OnMapR
         }
     }
 
+    // Launcher de Galería (Photo Picker)
+    private val pickMediaLauncher = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            presenter.onFotoCapturada(uri.toString())
+        }
+    }
+
     // Launcher de Permisos Ubicación
     private val requestLocationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -93,7 +108,6 @@ class NuevaIncidenciaFragment : Fragment(), NuevaIncidenciaContract.View, OnMapR
     private val requestNotificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { _ ->
-        // No se requiere acción adicional tras la solicitud
     }
 
     override fun onCreateView(
@@ -120,7 +134,6 @@ class NuevaIncidenciaFragment : Fragment(), NuevaIncidenciaContract.View, OnMapR
         setupListeners()
         presenter.cargarCategorias()
 
-        // Solicitar permisos de notificación si aplica
         solicitarPermisosNotificacion()
     }
 
@@ -133,6 +146,10 @@ class NuevaIncidenciaFragment : Fragment(), NuevaIncidenciaContract.View, OnMapR
     private fun setupListeners() {
         binding.btnAbrirCamara.setOnClickListener {
             solicitarPermisosCamara()
+        }
+
+        binding.btnGaleria.setOnClickListener {
+            pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
 
         binding.btnTomarFoto.setOnClickListener {
@@ -199,7 +216,8 @@ class NuevaIncidenciaFragment : Fragment(), NuevaIncidenciaContract.View, OnMapR
         binding.ivFotoPreview.setImageURI(Uri.parse(fotoUri))
 
         binding.btnTomarFoto.visibility = View.GONE
-        binding.btnAbrirCamara.visibility = View.GONE
+        binding.btnAbrirCamara.visibility = View.VISIBLE
+        binding.btnGaleria.visibility = View.VISIBLE
         binding.btnRepetirFoto.visibility = View.VISIBLE
     }
 
@@ -212,12 +230,34 @@ class NuevaIncidenciaFragment : Fragment(), NuevaIncidenciaContract.View, OnMapR
     }
 
     override fun reporteGuardadoExitosamente() {
-        NotificationHelper.mostrarNotificacionReporteCreado(
-            requireContext(),
-            binding.etTitulo.text?.toString().orEmpty().ifBlank { "Nuevo Reporte" },
-            (System.currentTimeMillis() % 10000).toInt()
+        val titulo = binding.etTitulo.text?.toString().orEmpty().ifBlank { "Nuevo Reporte" }
+        val desc = binding.etDescripcion.text?.toString().orEmpty().ifBlank { "Sin descripción" }
+        val localUri = fotoCapturadaUri?.let { Uri.parse(it) }
+
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val fechaActual = dateFormat.format(Date())
+
+        val incidencia = Incidencia(
+            id = 0,
+            titulo = titulo,
+            descripcion = desc,
+            categoria = categoriaSeleccionada,
+            latitud = latitudActual,
+            longitud = longitudActual,
+            fotoUri = fotoCapturadaUri,
+            fecha = fechaActual,
+            resuelta = false
         )
-        findNavController().popBackStack()
+
+        lifecycleScope.launch {
+            SyncRepository.guardarYSincronizarIncidencia(incidencia, localUri)
+            NotificationHelper.mostrarNotificacionReporteCreado(
+                requireContext(),
+                titulo,
+                (System.currentTimeMillis() % 10000).toInt()
+            )
+            findNavController().popBackStack()
+        }
     }
 
     override fun solicitarPermisosCamara() {
@@ -272,6 +312,7 @@ class NuevaIncidenciaFragment : Fragment(), NuevaIncidenciaContract.View, OnMapR
         binding.cameraPreviewView.visibility = View.VISIBLE
 
         binding.btnAbrirCamara.visibility = View.GONE
+        binding.btnGaleria.visibility = View.GONE
         binding.btnRepetirFoto.visibility = View.GONE
         binding.btnTomarFoto.visibility = View.VISIBLE
 
@@ -354,7 +395,6 @@ class NuevaIncidenciaFragment : Fragment(), NuevaIncidenciaContract.View, OnMapR
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(initialLatLng, 14f))
             binding.layoutMapFallback.visibility = View.GONE
         } catch (e: Exception) {
-            // Si la API key no está configurada, mostrar fallback visual
             binding.layoutMapFallback.visibility = View.VISIBLE
         }
     }
