@@ -14,7 +14,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@android:drawable/ic_menu_revert"
-            app:title="Detalle del Reporte" />
+            app:title="Detalle del Reporte"
+            app:menu="@menu/menu_detalle" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

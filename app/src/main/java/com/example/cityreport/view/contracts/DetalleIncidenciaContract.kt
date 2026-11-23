@@ -15,5 +15,6 @@ interface DetalleIncidenciaContract {
         fun detachView()
         fun cargarDetalle(id: Int)
         fun cambiarEstadoResuelta(id: Int, resuelta: Boolean)
+        fun eliminarIncidencia(id: Int)
     }
 }

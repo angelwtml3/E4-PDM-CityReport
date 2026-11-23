@@ -9,7 +9,9 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.example.cityreport.R
+import com.example.cityreport.CityReportApp
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 object NotificationHelper {
 
@@ -30,6 +32,14 @@ object NotificationHelper {
     }
 
     fun mostrarNotificacionReporteCreado(context: Context, tituloReporte: String, idReporte: Int) {
+        val notificacionesActivadas = runBlocking {
+            CityReportApp.instance.preferencesRepository.isNotificationsEnabledFlow.first()
+        }
+
+        if (!notificacionesActivadas) {
+            return
+        }
+
         crearCanalNotificacion(context)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -38,7 +48,6 @@ object NotificationHelper {
                     Manifest.permission.POST_NOTIFICATIONS
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                // Permiso de notificación no concedido
                 return
             }
         }
